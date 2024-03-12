@@ -31,5 +31,3 @@ def Auth():
         except NetMikoAuthenticationException:
             print("\n Login incorrect. Please check your username and password")
             print(" Retrying operation... \n")
-
-Auth()
