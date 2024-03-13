@@ -6,10 +6,14 @@ import socket
 
 deviceIP = 0
 username = ""
+execPrivPassword = ""
+netDevice = {}
 
 def Auth():
     global deviceIP
     global username
+    global execPrivPassword
+    global netDevice
     while True:
         deviceIP = input("Please enter the device IP: ")
         if validateIP(deviceIP):
@@ -57,4 +61,4 @@ def Auth():
             with open('auth_log.txt', 'a') as text:
                 text.write(f"Device unreachable - Device IP: {deviceIP}, Username: {username}\n")
 
-    return deviceIP, username
+    return deviceIP, username, netDevice

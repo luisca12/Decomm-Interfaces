@@ -1,10 +1,11 @@
-from auth import Auth
+from auth import *
 from strings import *
-from functions import checkIsDigit
+from functions import *
+from commandsCLI import *
 import os
 
 greeting()
-deviceIP, username = Auth()
+deviceIP, username, netDevice = Auth()
 
 while True:
     print("* Only numbers are accepted *")
@@ -12,7 +13,8 @@ while True:
     selection = input("Please choose the option that you want: ")
     if checkIsDigit(selection):
         if selection == "1":
-            print("It is working")
+            notConnect(deviceIP, username, netDevice)
+            os.system("PAUSE")
             break
         else:
             print("Not coded yet")

@@ -9,8 +9,9 @@ def menu(deviceIP, username):
         os.system("CLS")
         print("Connected to:", deviceIP, "as", username)
         print('\n  -------------------------------------------------------------- ')
-        print('>      1. Show interfaces not running for more than 30 days         <')
-        print('>      2. Decom interfaces not running for more than 30 days       <')
+        print('>      1. Show not connected interfaces                           <')
+        print('>      2. Show interfaces not running for more than 30 days         <')
+        print('>      3. Decom interfaces not running for more than 30 days       <')
         print('\n  -------------------------------------------------------------- ')
 
 def inputError():
