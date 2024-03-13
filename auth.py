@@ -1,8 +1,15 @@
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetMikoAuthenticationException
-import validateIP
+from netmiko.exceptions import NetMikoTimeoutException
+from validateIP import validateIP
+import socket
+
+deviceIP = 0
+username = ""
 
 def Auth():
+    global deviceIP
+    global username
     while True:
         deviceIP = input("Please enter the device IP: ")
         if validateIP(deviceIP):
@@ -27,7 +34,27 @@ def Auth():
             sshAccess = ConnectHandler(**netDevice)
             sshAccess.enable()
             print("Login successful! \n")
+
+            with open('auth_log.txt', 'a') as text:
+                text.write(f"Successful login - Device IP: {deviceIP}, Username: {username}\n")
             break
+
         except NetMikoAuthenticationException:
             print("\n Login incorrect. Please check your username and password")
             print(" Retrying operation... \n")
+            with open('auth_log.txt', 'a') as text:
+                text.write(f"Failed to login - Device IP: {deviceIP}, Username: {username}\n")
+
+        except NetMikoTimeoutException:
+            print("\n Connection to the device timed out. Please check your network connectivity and try again.")
+            print(" Retrying operation... \n")
+            with open('auth_log.txt', 'a') as text:
+                text.write(f"Connection timed out, device not reachable - Device IP: {deviceIP}, Username: {username}\n")
+
+        except socket.error:
+            print("\n IP address is not reachable. Please check the IP address and try again.")
+            print(" Retrying operation... \n")
+            with open('auth_log.txt', 'a') as text:
+                text.write(f"Device unreachable - Device IP: {deviceIP}, Username: {username}\n")
+
+    return deviceIP, username

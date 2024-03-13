@@ -1,0 +1,3 @@
+Successful login - Device IP: 192.168.0.22, Username: luis
+Failed to login - Device IP: 192.168.0.22, Username: sss
+Connection timed out, device not reachable - Device IP: 192.168.0.22, Username: cisco
