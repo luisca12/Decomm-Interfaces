@@ -15,10 +15,12 @@ while True:
         if selection == "1":
             notConnect(deviceIP, username, netDevice)
             os.system("PAUSE")
-            break
         else:
-            print("Not coded yet")
-            break
+            if selection == "2":
+                sh30dIntOff(deviceIP, username, netDevice)
+                os.system("PAUSE")
+                break
+
     else:
         inputError()
         os.system("PAUSE")

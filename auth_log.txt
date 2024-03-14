@@ -1,3 +1,184 @@
 Successful login - Device IP: 192.168.0.22, Username: luis
 Failed to login - Device IP: 192.168.0.22, Username: sss
 Connection timed out, device not reachable - Device IP: 192.168.0.22, Username: cisco
+Successful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.23, Username: luisSuccessful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.23, Username: luis
+ERROR: user luis with device IP 192.168.0.23, error message: Invalid commandSuccessful login - Device IP: 192.168.0.23, Username: luis
+ERROR: user luis with device IP 192.168.0.23, error message: Invalid commandSuccessful login - Device IP: 192.168.0.23, Username: luis
+ERROR: user luis with device IP 192.168.0.23, error message: Invalid command
+Successful login - Device IP: 192.168.0.23, Username: luis
+ERROR: user luis with device IP 192.168.0.23 tried to run 'show ip interface brief stat', error message: Invalid command
+Successful login - Device IP: 192.168.0.23, Username: luis
+ERROR: user luis with device IP 192.168.0.23 tried to run 'show ip interface brief stat', error message: Invalid command
+Successful login - Device IP: 192.168.0.23, Username: luis
+ERROR: user luis with device IP 192.168.0.23 tried to run 'show ip interface brief stat', error message: Invalid command
+Successful login - Device IP: 192.168.0.23, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: user luis with device IP 192.168.0.22 tried to run 'show interface status', error message: Invalid command
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface stats'
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: user luis with device IP 192.168.0.22 tried to run 'show interface status | include Port | notconnect', error message: Invalid command
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show ip int'
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: user luis with device IP 192.168.0.22 tried to run 'show interface status | include Port | notconnect', error message: cannot access local variable 'shNotConnect' where it is not associated with a value
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: user luis with device IP 192.168.0.22 tried to run 'show interface status | include Port | notconnect', error message: cannot access local variable 'shNotConnect' where it is not associated with a value
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: user luis with device IP 192.168.0.22 tried to run 'show interface status | include Port | notconnect', error message: cannot access local variable 'shNotConnect' where it is not associated with a value
+Successful login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: user luis with device IP 192.168.0.22 tried to run 'show interface status | include Port | notconnect', error message: Invalid command
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not runningfor more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not runningfor more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not runningfor more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: {error}
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Failed to login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1'
+INFO: user luis with device IP 192.168.0.22 sucessfully found interfaces not running for more than 30 days
+Connection timed out, device not reachable - Device IP: 192.168.0.25, Username: luis
+Connection timed out, device not reachable - Device IP: 192.168.0.25, Username: luis
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.25, Username: luis
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.25, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.25, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.50, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.55, Username: ss
+ERROR: user ss with device IP 192.168.0.55 tried to run 'show interface e0/1 r', error message: TCP connection to device failed.
+
+Common causes of this problem are:
+1. Incorrect hostname or IP address.
+2. Wrong TCP port.
+3. Intermediate firewall blocking access.
+
+Device settings: cisco_ios 192.168.0.55:22
+
+
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.55, Username: ss
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.50, Username: ss
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+ERROR: Connection timed out, device not reachable - Device IP: 192.168.0.50, Username: ss
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: cc
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: ss
+Successful login - Device IP: 192.168.0.22, Username: luis
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+INFO: user luis with device IP 192.168.0.22 ran the command 'show interface e0/1 r'
+ERROR: user luis with device IP 192.168.0.22 couldn't find interfaces not runningfor more than 30 days, error message: Output line not found
+ERROR: Failed to login - Device IP: 192.168.0.22, Username: qq
