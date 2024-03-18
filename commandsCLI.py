@@ -9,7 +9,7 @@ import logging
 # Regex patterns
 searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])'
 intNotConnPatt = r'Et\d{1,2}\/\d{1,2}' #Used for tests
-ipIntBrief = "show interface status | include Port | connect" #Used for tests
+ipIntBrief = "show interface status | include Port | disabled" #Used for tests
 
 logging.basicConfig(filename='auth_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -69,7 +69,7 @@ def sh30dIntOff(deviceIP, username, netDevice):
                              "for more than 30 days")
 
                 timeToDays = 0
-                timeUnit = re.findall(r'\d+[ymd]', notConnectOutputBr) 
+                timeUnit = re.findall(r'\d+[ymwd]', notConnectOutputBr) 
                 for unit in timeUnit:
                     num = int(unit[:-1])
                     if 'y' in unit:
@@ -83,6 +83,8 @@ def sh30dIntOff(deviceIP, username, netDevice):
                     
                 if timeToDays >= 30:
                     print("The interface",int, "was used",notConnectOutputBr,"ago")
+                else:
+                    print(notConnectOutputBr)
 
             else:
                 raise ValueError(f"Output line not found for interface {int}")
