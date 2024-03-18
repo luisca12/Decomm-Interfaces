@@ -1,12 +1,19 @@
-import os
 from netmiko import ConnectHandler
 from auth import *
 import re
+import logging
 
-ipIntBrief = "show interface e0/1 r"
+#ipIntBrief = "show interface status | include Port | notconnect" #Real regex for production
+#intNotConnPatt = r'(Gi|Te)\d+/\d+/\d+' #Real regex for production
+
+# Regex patterns
 searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])'
+intNotConnPatt = r'Et\d{1,2}\/\d{1,2}' #Used for tests
+ipIntBrief = "show interface status | include Port | connect" #Used for tests
 
-def notConnect(deviceIP, username, netDevice):
+logging.basicConfig(filename='auth_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def notConnect(deviceIP, username, netDevice, printNotConnect=True):
     # This function is to show the interfaces not connected.
     # show interface status | include Port | notconnect
     try:
@@ -18,39 +25,45 @@ def notConnect(deviceIP, username, netDevice):
         if 'Invalid input' in shNotConnect:
             raise ValueError("Invalid command")
         
-        with open('auth_log.txt', 'a') as text:
-            text.write(f"INFO: user {username} with device IP {deviceIP} ran the command '{ipIntBrief}'\n")
+        if printNotConnect:
+            print(shNotConnect)
+        
+        logging.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'\n")
 
-        return shNotConnect
+        intNotConnected = re.findall(intNotConnPatt, shNotConnect)
+        return intNotConnected
 
     except Exception as error:
-        print(f"Error: {error}\n")
-        with open('auth_log.txt', 'a') as text:
-            text.write(f"ERROR: user {username} with device IP {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
-    return None
+        logging.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
+        return []
 
 def sh30dIntOff(deviceIP, username, netDevice):
-    # This function is to show the interfaces not operating for more than 30 days
+        # This function is to show the interfaces not operating for more than 30 days
     # show interface g1/0/1
     # It will capture the string "output HH:MM:SS | y:m:d", that is, 
     # hours:minutes:second and years:months:days
-    try:
-        sshAccess = ConnectHandler(**netDevice)
-        sshAccess.enable()
-        
-        notConnectOutput = notConnect(deviceIP, username, netDevice)
-        notConnectOutputBr = re.search(searchPatt30d, notConnectOutput)
 
-        if notConnectOutput:
-            notConnectOutputBr = notConnectOutputBr.group()
-            with open('auth_log.txt', 'a') as text:
-                text.write(f"INFO: user {username} with device IP {deviceIP} sucessfully found interfaces not running " \
-                            "for more than 30 days\n")
+    """
+    Note: if you see the error output: Error: 'NoneType' object has no attribute 'group'
+    please check if the output of "show interface e0/1" is "output never", if it's like this
+    it will fail, it will only look for "output HH:MM:SS | y:m:d"
+    """
+    try:
+        intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
+        
+        for int in intNotConnected:
+            cliCommand = f"show interface {int}"
+            cliOutput = ConnectHandler(**netDevice).send_command(cliCommand)
+            notConnectOutputBr = re.search(searchPatt30d, cliOutput)
+
+            if notConnectOutputBr:
+                notConnectOutputBr = notConnectOutputBr.group()
+                logging.info(f"User {username} connected to {deviceIP} successfully found interfaces {int} not running " \
+                             "for more than 30 days\n")
                 print(notConnectOutputBr)
-        else:
-            raise ValueError("Output line not found")
+            else:
+                raise ValueError(f"Output line not found for interface {int}")
+            
     except Exception as error:
-        print(f"Error: {error}\n")
-        with open('auth_log.txt', 'a') as text:
-            text.write(f"ERROR: user {username} with device IP {deviceIP} couldn't find interfaces not running" \
-                       f"for more than 30 days, error message: {error}\n")    
+        logging.error(f"User {username} connected to {deviceIP} couldn't find interfaces not running" \
+                       f"for more than 30 days, error message: {error}")
