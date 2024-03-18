@@ -13,12 +13,13 @@ ipIntBrief = "show interface status | include Port | connect" #Used for tests
 
 logging.basicConfig(filename='auth_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def notConnect(deviceIP, username, netDevice, printNotConnect=True):
+def notConnect(deviceIP, username, netDevice, printNotConnect=True, sshAccess=None):
     # This function is to show the interfaces not connected.
     # show interface status | include Port | notconnect
     try:
-        sshAccess = ConnectHandler(**netDevice)
-        sshAccess.enable()
+        if sshAccess is None:
+            sshAccess = ConnectHandler(**netDevice)
+            sshAccess.enable()
         
         shNotConnect = sshAccess.send_command(ipIntBrief)
 
@@ -36,6 +37,9 @@ def notConnect(deviceIP, username, netDevice, printNotConnect=True):
     except Exception as error:
         logging.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
         return []
+    finally:
+        if sshAccess:
+            sshAccess.disconnect()
 
 def sh30dIntOff(deviceIP, username, netDevice):
         # This function is to show the interfaces not operating for more than 30 days
@@ -49,21 +53,26 @@ def sh30dIntOff(deviceIP, username, netDevice):
     it will fail, it will only look for "output HH:MM:SS | y:m:d"
     """
     try:
+        sshAccess = ConnectHandler(**netDevice)
+        sshAccess.enable()
+
         intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
         
         for int in intNotConnected:
             cliCommand = f"show interface {int}"
-            cliOutput = ConnectHandler(**netDevice).send_command(cliCommand)
+            cliOutput = sshAccess.send_command(cliCommand)
             notConnectOutputBr = re.search(searchPatt30d, cliOutput)
 
             if notConnectOutputBr:
                 notConnectOutputBr = notConnectOutputBr.group()
                 logging.info(f"User {username} connected to {deviceIP} successfully found interfaces {int} not running " \
-                             "for more than 30 days\n")
+                             "for more than 30 days")
                 print(notConnectOutputBr)
             else:
                 raise ValueError(f"Output line not found for interface {int}")
-            
     except Exception as error:
         logging.error(f"User {username} connected to {deviceIP} couldn't find interfaces not running" \
                        f"for more than 30 days, error message: {error}")
+    finally:
+        if sshAccess:
+            sshAccess.disconnect()
