@@ -67,7 +67,23 @@ def sh30dIntOff(deviceIP, username, netDevice):
                 notConnectOutputBr = notConnectOutputBr.group()
                 logging.info(f"User {username} connected to {deviceIP} successfully found interfaces {int} not running " \
                              "for more than 30 days")
-                print(notConnectOutputBr)
+
+                timeToDays = 0
+                timeUnit = re.findall(r'\d+[ymd]', notConnectOutputBr) 
+                for unit in timeUnit:
+                    num = int(unit[:-1])
+                    if 'y' in unit:
+                        timeToDays += num * 365
+                    elif 'm' in unit:
+                        timeToDays += num * 30
+                    elif'w' in unit:
+                        timeToDays += num * 7
+                    else:
+                        timeToDays += num
+                    
+                if timeToDays >= 30:
+                    print("The interface",int, "was used",notConnectOutputBr,"ago")
+
             else:
                 raise ValueError(f"Output line not found for interface {int}")
     except Exception as error:
