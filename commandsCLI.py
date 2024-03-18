@@ -82,7 +82,7 @@ def sh30dIntOff(deviceIP, username, netDevice):
                         timeToDays += num
                     
                 if timeToDays >= 30:
-                    print("The interface",int, "was used",notConnectOutputBr,"ago")
+                    print("The interface",int, "was used",timeToDays,"ago")
                 else:
                     print(notConnectOutputBr)
 
