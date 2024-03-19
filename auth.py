@@ -1,6 +1,6 @@
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetMikoAuthenticationException, NetMikoTimeoutException
-from validateIP import validateIP
+from functions import *
 import socket
 import logging
 

@@ -22,6 +22,9 @@ def inputError():
         print('>      INPUT ERROR: Only numbers are allowed       <')
         print('  ------------------------------------------------- ')
 
-def log():
-    with open('auth_log.txt', 'a') as text:
-        text.write(f"Failed to login - Device IP: {deviceIP}, Username: {username}\n")
+def selInt():
+        os.system("CLS")
+        print('  ------------------------------------------------- ')  
+        print('>      Please input the interfaces to decom:       <')
+        print('>    Example: Et0/1-10, Gi1/0/11-20, Te1/0/1-4     <')
+        print('  ------------------------------------------------- ')
