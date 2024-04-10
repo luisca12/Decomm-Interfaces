@@ -1,6 +1,7 @@
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetMikoAuthenticationException, NetMikoTimeoutException
 from functions import *
+from log import *
 import socket
 import logging
 
@@ -8,8 +9,6 @@ deviceIP = ""
 username = ""
 execPrivPassword = ""
 netDevice = {}
-
-logging.basicConfig(filename='auth_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def Auth():
     global deviceIP, username, execPrivPassword, netDevice
@@ -40,7 +39,8 @@ def Auth():
             execPrivPassword = input("Pleae input your enable password: ")
 
             netDevice = {
-                'device_type' : 'cisco_ios',
+                # 'device_type' : 'cisco_xe',
+                'device_type' : 'cisco_ios', #Used for tests
                 'ip' : deviceIP,
                 'username' : username,
                 'password' : password,
@@ -51,21 +51,21 @@ def Auth():
             sshAccess.enable()
             print("Login successful! \n")
 
-            logging.info(f"Successful login - remote device IP: {deviceIP}, Username: {username}\n")
+            authLog.info(f"Successful login - remote device IP: {deviceIP}, Username: {username}")
 
             return deviceIP, username, netDevice
 
         except NetMikoAuthenticationException:
             print("\n Login incorrect. Please check your username and password")
             print(" Retrying operation... \n")
-            logging.error(f"Failed to login - remote device IP: {deviceIP}, Username: {username}\n")
+            authLog.error(f"Failed to login - remote device IP: {deviceIP}, Username: {username}\n")
 
         except NetMikoTimeoutException:
             print("\n Connection to the device timed out. Please check your network connectivity and try again.")
             print(" Retrying operation... \n")
-            logging.error(f"Connection timed out, device not reachable - remote device IP: {deviceIP}, Username: {username}\n")
+            authLog.error(f"Connection timed out, device not reachable - remote device IP: {deviceIP}, Username: {username}\n")
                        
         except socket.error:
             print("\n IP address is not reachable. Please check the IP address and try again.")
             print(" Retrying operation... \n")
-            logging.error(f"Remote device unreachable - remote device IP: {deviceIP}, Username: {username}\n")
+            authLog.error(f"Remote device unreachable - remote device IP: {deviceIP}, Username: {username}\n")

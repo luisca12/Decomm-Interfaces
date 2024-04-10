@@ -1,4 +1,5 @@
 from netmiko import ConnectHandler
+from log import *
 from strings import *
 from auth import *
 import re
@@ -10,40 +11,39 @@ import logging
 # Regex patterns
 searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])'
 intNotConnPatt = r'Et\d{1,2}\/\d{1,2}' #Used for tests
-ipIntBrief = "show interface status | include Port | disabled" #Used for tests
-intChosenPatt = r'/\b(?:Et|Gi|Te)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
+ipIntBrief = "show interface status | include Port|connected" #Used for tests
+intChosenPatt = r'/\b(?:Et|Gi|Te|Tw)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te|Tw)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
 shRun = "show run"
-
-logging.basicConfig(filename='auth_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+intChosen = ""
+decomIntCLIOutput = []
 
 def notConnect(deviceIP, username, netDevice, printNotConnect=True, sshAccess=None):
     # This function is to show the interfaces not connected.
     # show interface status | include Port | notconnect
     try:
         if sshAccess is None:
-            sshAccess = ConnectHandler(**netDevice)
-            sshAccess.enable()
+            with ConnectHandler(**netDevice) as sshAccess:
+                sshAccess.enable()
         
-        shNotConnect = sshAccess.send_command(ipIntBrief)
+                shNotConnect = sshAccess.send_command(ipIntBrief)
 
-        if 'Invalid input' in shNotConnect:
-            raise ValueError("Invalid command")
-        
-        if printNotConnect:
-            print(shNotConnect)
-        
-        logging.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'\n")
+                if 'Invalid input' in shNotConnect:
+                    raise ValueError("Invalid command")
+                
+                if printNotConnect:
+                    print(shNotConnect)
+                
+                authLog.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'\n")
 
-        intNotConnected = re.findall(intNotConnPatt, shNotConnect)
-        return intNotConnected
+                intNotConnected = re.findall(intNotConnPatt, shNotConnect)
+                return intNotConnected
 
     except Exception as error:
-        logging.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
+        print(f"An error occurred: {error}")
+        authLog.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
         return []
     finally:
         os.system("PAUSE")
-        if sshAccess:
-            sshAccess.disconnect()
 
 def sh30dIntOff(deviceIP, username, netDevice):
     # This function is to show the interfaces not operating for more than 30 days
@@ -57,93 +57,139 @@ def sh30dIntOff(deviceIP, username, netDevice):
     it will fail, it will only look for "output HH:MM:SS | y:m:d"
     """
     try:
-        sshAccess = ConnectHandler(**netDevice)
-        sshAccess.enable()
+        with ConnectHandler(**netDevice) as sshAccess:
+            sshAccess.enable()
 
-        intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
-        
-        for int in intNotConnected:
-            cliCommand = f"show interface {int}"
-            cliOutput = sshAccess.send_command(cliCommand)
-            notConnectOutputBr = re.search(searchPatt30d, cliOutput)
+            intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
+    
+            for int in intNotConnected:
+                cliCommand = f"show interface {int}"
+                cliOutput = sshAccess.send_command(cliCommand)
+                notConnectOutputBr = re.search(searchPatt30d, cliOutput)
 
-            if notConnectOutputBr:
-                notConnectOutputBr = notConnectOutputBr.group()
-                logging.info(f"User {username} connected to {deviceIP} successfully found interfaces {int} not running " \
-                             "for more than 30 days")
+                if notConnectOutputBr:
+                    notConnectOutputBr = notConnectOutputBr.group()
+                    authLog.info(f"User {username} connected to {deviceIP} successfully found interfaces {int} not running " \
+                        "for more than 30 days")
 
-                timeToDays = 0
-                timeUnit = re.findall(r'\d+[ymwd]', notConnectOutputBr) 
-                for unit in timeUnit:
-                    num = int(unit[:-1])
-                    if 'y' in unit:
-                        timeToDays += num * 365
-                    elif 'm' in unit:
-                        timeToDays += num * 30
-                    elif'w' in unit:
-                        timeToDays += num * 7
+                    timeToDays = 0
+                    timeUnit = re.findall(r'\d+[ymwd]', notConnectOutputBr) 
+                    for unit in timeUnit:
+                        num = int(unit[:-1])
+                        if 'y' in unit:
+                            timeToDays += num * 365
+                        elif 'm' in unit:
+                            timeToDays += num * 30
+                        elif'w' in unit:
+                            timeToDays += num * 7
+                        else:
+                            timeToDays += num
+                        
+                    if timeToDays >= 30:
+                        print("The interface",int, "was used",timeToDays,"ago")
                     else:
-                        timeToDays += num
-                    
-                if timeToDays >= 30:
-                    print("The interface",int, "was used",timeToDays,"ago")
-                else:
-                    print("Interface has been running",notConnectOutputBr)
+                        print("Interface has been running",notConnectOutputBr)
 
-            else:
-                raise ValueError(f"Output line not found for interface {int}")
+                else:
+                    raise ValueError(f"Output line not found for interface {int}")
     except Exception as error:
-        logging.error(f"User {username} connected to {deviceIP} couldn't find interfaces not running " \
-                       f"for more than 30 days, error message: {error}")
+        print(f"An error occurred: {error}")
+        authLog.error(f"User {username} connected to {deviceIP} couldn't find interfaces not running " \
+            f"for more than 30 days, error message: {error}")
     finally:
         os.system("PAUSE")
-        if sshAccess:
-            sshAccess.disconnect()
 
-# def selectIntOff(deviceIP, username, netDevice):
-def selectIntOffTest():
+def selectIntOff(deviceIP, username, netDevice):
     # This function is to select the interfaces that we want to decom
     # This is manually input by the network operator
+    global intChosen
+
     try:
-        # sshAccess = ConnectHandler(**netDevice)
-        # sshAccess.enable()
+        with ConnectHandler(**netDevice) as sshAccess:
+            sshAccess.enable()
 
-        while True:
-            selInt()
-            intChosen = input("Interfaces: ")
-            intChosenOut = validateInt(intChosen)
+            while True:
+                selIntString()    
+                intChosen = input("Interfaces: ")
 
-            if intChosenOut == True:
-                print(intChosenOut, intChosen)
-                logging.info(f"User {username} connected to {deviceIP} successfully selected the interfaces to decom, "\
-                             f"")
-                return intChosen
+                # validateInt is a boolean function
+                intChosenOut = validateInt(intChosen)
 
-            else:
-                print(f"Invalid input \"{intChosen}\"\n")
-                os.system("PAUSE"), os.system("CLS")
-                logging.error("The return value from the function validateInt is False (incorrect)")
-
+                if intChosenOut:
+                    print("Interfaces properly entered and saved. \n")
+                    authLog.info(f"User {username} connected to {deviceIP} successfully selected the interfaces to decom:" \
+                        f"{intChosen}")
+                    return intChosen
+                
+                else:
+                    print(f"Invalid input \"{intChosen}\"\n")
+                    authLog.error("The return value from the function validateInt is False (incorrect), please check the interfaces chosen.")
+                    os.system("PAUSE"), os.system("CLS")
+                
     except Exception as error:
-        logging.error(f"User {username} connected to {deviceIP} encountered an error while validating input:{error}")
-                       
+        print(f"An error occurred: {error}")
+        authLog.error(f"User {username} connected to {deviceIP} encountered an error while validating input:{error}")
+                    
     finally:
         os.system("PAUSE")
-    #     if sshAccess:
-    #         sshAccess.disconnect()
 
 def delIntOff(deviceIP, username, netDevice):
-    # This function is to delete the interfaces that will be decom
+    # This function is to go thorught the several interfaces and decomm them
     try:
-        sshAccess = ConnectHandler(**netDevice)
-        sshAccess.enable()
-        
-        
+        global decomIntCLIOutput
+        if intChosen:
+            with ConnectHandler(**netDevice) as sshAccess:
+                sshAccess.enable()
 
+                shRunString(deviceIP)
+                shRunOutput = sshAccess.send_command(shRun)
+                configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
+                    f"before making the changes successfully:\n{shRunOutput}")
+
+                print(f"\nInterfaces selected for decommissioning: {intChosen}")
+                print("Will now begin to decommission the interfaces.\n")
+
+                intModified = intChosen.split(",")
+                for interface in intModified:
+                    print("Processing interface: ",interface)
+                    configChangeLog.info(f"Configuring interface {interface}\n{decomIntCLI(interface)}\n")
+                    
+                    sshAccess.send_config_set(decomIntCLI(interface))
+                    decomIntCLIOutput.append(sshAccess.send_config_set(decomIntCLI(interface)))
+
+                    configChangeLog.info(f"User {username} successfully connected to device IP {deviceIP} and ran the following commands:\n {decomIntCLI(interface)}\n")
+                    authLog.info(f"User {username} connected to device IP {deviceIP} successfully, processed and configured the interface {intChosen} in VLAN 1001.")
+                    print("Successfully decommissioned the interfaces.")
+                    
+                shRunOutput = sshAccess.send_command(shRun)
+                configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
+                    f"after making the changes successfully:\n{shRunOutput}")
+                return decomIntCLIOutput
+                    
+        else:
+            print("No interfaces selected. Please go back to option 3\n")
+            authLog.warning(f"User {username} connected to {deviceIP} did not select any interfaces for decommissioning.")
+            return []
+                
     except Exception as error:
-        logging.error(f"User {username} connected to {deviceIP} encountered an error while validating input:{error}")
-                       
+        print(f"An error occurred: {error}")
+        authLog.error(f"User {username} connected to {deviceIP} encountered an error while processing interfaces for decommissioning: {error}")
+
     finally:
         os.system("PAUSE")
-        if sshAccess:
-            sshAccess.disconnect()
+
+def decomIntCLI(interface):
+    decomIntCLI = [
+            f"interface range {interface}",
+            "description unusedPort",
+            "switchport mode access",
+            "switchport access vlan 1001",
+            "shutdown"
+    ]
+    return decomIntCLI
+
+def shDelIntOff():
+    shDelIntOffString()
+    for output in decomIntCLIOutput:
+        print(output)
+    os.system("PAUSE")
