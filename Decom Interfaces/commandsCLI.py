@@ -11,8 +11,8 @@ import logging
 # Regex patterns
 searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])'
 intNotConnPatt = r'Et\d{1,2}\/\d{1,2}' #Used for tests
-ipIntBrief = "show interface status | include Port | up" #Used for tests
-intChosenPatt = r'/\b(?:Et|Gi|Te)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
+ipIntBrief = "show interface status | include Port|connected" #Used for tests
+intChosenPatt = r'/\b(?:Et|Gi|Te|Tw)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te|Tw)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
 shRun = "show run"
 intChosen = ""
 decomIntCLIOutput = []
@@ -144,7 +144,7 @@ def delIntOff(deviceIP, username, netDevice):
                 shRunString(deviceIP)
                 shRunOutput = sshAccess.send_command(shRun)
                 configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
-                    f"successfully:\n{shRunOutput}")
+                    f"before making the changes successfully:\n{shRunOutput}")
 
                 print(f"\nInterfaces selected for decommissioning: {intChosen}")
                 print("Will now begin to decommission the interfaces.\n")

@@ -39,7 +39,8 @@ def Auth():
             execPrivPassword = input("Pleae input your enable password: ")
 
             netDevice = {
-                'device_type' : 'cisco_ios',
+                # 'device_type' : 'cisco_xe',
+                'device_type' : 'cisco_ios', #Used for tests
                 'ip' : deviceIP,
                 'username' : username,
                 'password' : password,
