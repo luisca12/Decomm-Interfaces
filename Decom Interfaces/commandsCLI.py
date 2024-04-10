@@ -134,6 +134,7 @@ def selectIntOff(deviceIP, username, netDevice):
         os.system("PAUSE")
 
 def delIntOff(deviceIP, username, netDevice):
+    # This function is to go thorught the several interfaces and decomm them
     try:
         global decomIntCLIOutput
         if intChosen:
