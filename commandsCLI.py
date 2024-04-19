@@ -2,29 +2,32 @@ from netmiko import ConnectHandler
 from log import *
 from strings import *
 from auth import *
+
 import re
-import logging
 
-#ipIntBrief = "show interface status | include Port | notconnect" #Real regex for production
-#intNotConnPatt = r'(Gi|Te)\d+/\d+/\d+' #Real regex for production
-
-# Regex patterns
-searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])'
-intNotConnPatt = r'Et\d{1,2}\/\d{1,2}' #Used for tests
-ipIntBrief = "show interface status | include Port|connected" #Used for tests
-intChosenPatt = r'/\b(?:Et|Gi|Te|Tw)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te|Tw)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
 shRun = "show run"
 intChosen = ""
 decomIntCLIOutput = []
+intNotConnected = []
+
+# Regex patterns
+ipIntBrief = "show interface status | include Port | notconnect" #Real regex for production
+intNotConnPatt = r'(?:[a-zA-Z]+)(?:(?:\d+\/){2}\d+|(?:\d+))' #Real regex for production
+searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])|output never'
+intChosenPatt = r'/\b(?:Et|Gi|Te|Tw)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te|Tw)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
+
+# intNotConnPatt = r'Et\d{1,2}\/\d{1,2}\/\{1,2}\' #Used for tests
+# ipIntBrief = "show interface status | include Port|connected" #Used for tests
 
 def notConnect(deviceIP, username, netDevice, printNotConnect=True, sshAccess=None):
     # This function is to show the interfaces not connected.
     # show interface status | include Port | notconnect
+    global intNotConnected
     try:
         if sshAccess is None:
             with ConnectHandler(**netDevice) as sshAccess:
                 sshAccess.enable()
-        
+
                 shNotConnect = sshAccess.send_command(ipIntBrief)
 
                 if 'Invalid input' in shNotConnect:
@@ -36,11 +39,13 @@ def notConnect(deviceIP, username, netDevice, printNotConnect=True, sshAccess=No
                 authLog.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'\n")
 
                 intNotConnected = re.findall(intNotConnPatt, shNotConnect)
+                print(intNotConnected)
                 return intNotConnected
 
     except Exception as error:
         print(f"An error occurred: {error}")
         authLog.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
+        authLog.debug(traceback.format_exc())
         return []
     finally:
         os.system("PAUSE")
@@ -56,48 +61,58 @@ def sh30dIntOff(deviceIP, username, netDevice):
     please check if the output of "show interface e0/1" is "output never", if it's like this
     it will fail, it will only look for "output HH:MM:SS | y:m:d"
     """
-    try:
-        with ConnectHandler(**netDevice) as sshAccess:
-            sshAccess.enable()
-
-            intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
-    
-            for int in intNotConnected:
-                cliCommand = f"show interface {int}"
+    interfaceList30Day = []
+    with ConnectHandler(**netDevice) as sshAccess:
+        try:
+            # intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
+            print(intNotConnected)
+            for interface in intNotConnected:
+                cliCommand = f"show interface {interface}"
                 cliOutput = sshAccess.send_command(cliCommand)
                 notConnectOutputBr = re.search(searchPatt30d, cliOutput)
 
                 if notConnectOutputBr:
                     notConnectOutputBr = notConnectOutputBr.group()
-                    authLog.info(f"User {username} connected to {deviceIP} successfully found interfaces {int} not running " \
-                        "for more than 30 days")
 
-                    timeToDays = 0
-                    timeUnit = re.findall(r'\d+[ymwd]', notConnectOutputBr) 
-                    for unit in timeUnit:
-                        num = int(unit[:-1])
-                        if 'y' in unit:
-                            timeToDays += num * 365
-                        elif 'm' in unit:
-                            timeToDays += num * 30
-                        elif'w' in unit:
-                            timeToDays += num * 7
-                        else:
-                            timeToDays += num
+                    if notConnectOutputBr != 'output never':
                         
-                    if timeToDays >= 30:
-                        print("The interface",int, "was used",timeToDays,"ago")
-                    else:
-                        print("Interface has been running",notConnectOutputBr)
+                        authLog.info(f"User {username} connected to {deviceIP} successfully found interfaces {interface} not running " \
+                            "for more than 30 days")
 
+                        timeToDays = 0
+                        timeUnit = re.findall(r'\d+[ymwd]', notConnectOutputBr) 
+                        for unit in timeUnit:
+                            num = int(unit[:-1])
+                            if 'y' in unit:
+                                timeToDays += num * 365
+                            elif 'm' in unit:
+                                timeToDays += num * 30
+                            elif 'w' in unit:
+                                timeToDays += num * 7
+                            else:
+                                timeToDays += num
+                            
+                        if timeToDays >= 30:
+                            interfaceList30Day.append(interface)
+                            print(f"The interface {interface} was used {timeToDays} days ago")
+                            showInterface = f"show run int {interface} | begin interface"
+                            showInterfaceOut = sshAccess.send_command(showInterface)
+                            print(f"{showInterfaceOut}")
+                        else:
+                            print("Interface has been running",notConnectOutputBr)
+                    else:
+                        print(f"Skipping interface {interface} as its last output is: {notConnectOutputBr}")
+                        continue 
                 else:
-                    raise ValueError(f"Output line not found for interface {int}")
-    except Exception as error:
-        print(f"An error occurred: {error}")
-        authLog.error(f"User {username} connected to {deviceIP} couldn't find interfaces not running " \
-            f"for more than 30 days, error message: {error}")
-    finally:
-        os.system("PAUSE")
+                    raise ValueError(f"The interface {interface} last output: {notConnectOutputBr}")
+        except Exception as error:
+            print(f"An error occurred: {error}")
+            authLog.error(f"User {username} connected to {deviceIP} couldn't find interfaces not running " \
+                f"for more than 30 days, error message: {error}")
+            authLog.debug(traceback.format_exc())
+        finally:
+            os.system("PAUSE")
+    return interfaceList30Day
 
 def selectIntOff(deviceIP, username, netDevice):
     # This function is to select the interfaces that we want to decom
@@ -106,7 +121,6 @@ def selectIntOff(deviceIP, username, netDevice):
 
     try:
         with ConnectHandler(**netDevice) as sshAccess:
-            sshAccess.enable()
 
             while True:
                 selIntString()    
@@ -139,7 +153,6 @@ def delIntOff(deviceIP, username, netDevice):
         global decomIntCLIOutput
         if intChosen:
             with ConnectHandler(**netDevice) as sshAccess:
-                sshAccess.enable()
 
                 shRunString(deviceIP)
                 shRunOutput = sshAccess.send_command(shRun)
@@ -187,6 +200,46 @@ def decomIntCLI(interface):
             "shutdown"
     ]
     return decomIntCLI
+
+def autoChooseInt(deviceIP, username, netDevice):
+    interfaceList30Day = sh30dIntOff(deviceIP, username, netDevice)
+    with ConnectHandler(**netDevice) as sshAccess:
+        try:
+            shRunString(deviceIP)
+            shRunOutput = sshAccess.send_command(shRun)
+            configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
+                        f"before making the changes successfully:\n{shRunOutput}")
+            print(f"\nInterfaces selected for decommissioning: {interfaceList30Day}")
+            print("Will now begin to decommission the interfaces.\n")
+            for interface in interfaceList30Day:
+                print("Processing interface: ",interface)
+                configChangeLog.info(f"Configuring interface {interface}\n{decomIntCLI(interface)}\n")
+                
+                sshAccess.send_config_set(decomIntCLI(interface))
+                decomIntCLIOutput.append(sshAccess.send_config_set(decomIntCLI(interface)))
+
+                configChangeLog.info(f"User {username} successfully connected to device IP {deviceIP} and ran the following commands:\n {decomIntCLI(interface)}\n")
+                authLog.info(f"User {username} connected to device IP {deviceIP} successfully, processed and configured the interface {intChosen} in VLAN 1001.")
+                print("Successfully decommissioned the interfaces.")
+                        
+                shRunOutput = sshAccess.send_command(shRun)
+                configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
+                    f"after making the changes successfully:\n{shRunOutput}")
+                return decomIntCLIOutput
+                        
+            else:
+                print("No interfaces selected. Please go back to option 3\n")
+                authLog.warning(f"User {username} connected to {deviceIP} did not select any interfaces for decommissioning.")
+                return []
+                    
+        except Exception as error:
+            print(f"An error occurred: {error}")
+            authLog.error(f"User {username} connected to {deviceIP} encountered an error while processing interfaces for decommissioning: {error}")
+
+        finally:
+            os.system("PAUSE")
+
+
 
 def shDelIntOff():
     shDelIntOffString()

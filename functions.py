@@ -1,23 +1,143 @@
-import re
-import logging
+import socket
+import os
 from log import *
+from log import invalidIPLog
+import csv
+import traceback
+import re
+from netmiko.exceptions import NetMikoAuthenticationException, NetMikoTimeoutException
+from netmiko import ConnectHandler
 
 def checkIsDigit(input_str):
-    authLog.info(f"Option from the menu successfully validated, option: {input_str}")
-    return input_str.strip().isdigit()
-    #if input_str.strip().isdigit():
-    #    return True
-    #else:
-    #    return False
-
+    try:
+        authLog.info(f"String successfully validated selection number {input_str}, from checkIsDigit function.")
+        return input_str.strip().isdigit()
+    
+    except Exception as error:
+        authLog.error(f"Invalid option chosen: {input_str}, error: {error}")
+        authLog.error(traceback.format_exc())
+                
 def validateIP(deviceIP):
-    validIP_Pattern = r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$'
-    if re.match(validIP_Pattern, deviceIP):
-        authLog.info(f"\nIP successfully validated{deviceIP}")
-        return all(0 <= int(num) <= 255 for num in deviceIP.split('.'))
-    return False
+    try:
+        socket.inet_aton(deviceIP)
+        authLog.info(f"IP successfully validated: {deviceIP}")
+        return True
+    except (socket.error, AttributeError):
+        try:
+            deviceIP = f'{deviceIP}.mgmt.internal.das'
+            socket.gethostbyname(deviceIP)
+            authLog.info(f"Hostname successfully validated: {deviceIP}")
+            return True
+        except (socket.gaierror, AttributeError):
+            authLog.error(f"Not a valid IP address or hostname: {deviceIP}")
+            invalidIPLog.error(f"Invalid IP address or hostname: {deviceIP}")
+            # Append the invalid IP address or hostname to a CSV file
+            with open('invalidDestinations.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([deviceIP])
+            return False
+        
+def checkReachPort22(ip):
+    try:
+        if ip.count('.') == 3:  # Check if the input is an IP address
+            ip = ip
+        else:  # Assume it's a hostname and append the domain
+            ip = f"{ip}.mgmt.internal.das"
+        connTest = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connTest.settimeout(3)
+        connResult = connTest.connect_ex((ip, 22))
+        if connResult == 0:
+            print(f"Device {ip} is reachable on port TCP 22.")
+            authLog.info(f"Device {ip} is reachable on port TCP 22.")
+            return ip
+        else:
+            print(f"Device {ip} is not reachable on port TCP 22, will be skipped.")
+            authLog.error(f"Device IP: {ip}, is not reachable on port TCP 22.")
+            authLog.debug(traceback.format_exc())
+
+    except Exception as error:
+        print("Error occurred while checking device reachability:", error,"\n")
+        authLog.error(f"Error occurred while checking device reachability for IP {ip}: {error}")
+        authLog.debug(traceback.format_exc())
+    
+    finally:
+        connTest.close()
+
+def requestLogin(deviceIP):
+    while True:
+        if deviceIP.count('.') == 3:  # Check if the input is an deviceIP address
+            deviceIP = deviceIP
+        else:  # Assume it's a hostname and append the domain
+            deviceIP = f"{deviceIP}.mgmt.internal.das" 
+        try:
+            username = input("Please enter your username: ")
+            password = input("Please enter your password: ")
+            execPrivPassword = input("Please input your enable password: ")
+
+            
+            netDevice = {
+                'device_type': 'cisco_xe',
+                'ip': deviceIP,
+                'username': username,
+                'password': password,
+                'secret': execPrivPassword,
+                'global_delay_factor': 2.0,
+                'timeout': 60,
+                'session_log': 'netmikoLog.txt',
+                'verbose': True,
+                'session_log_file_mode': 'append'
+            }
+
+            with ConnectHandler(**netDevice) as sshAccess:
+                print(f"Login successful! Logged to device {deviceIP} \n")
+                authLog.info(f"Logging successful to device: {deviceIP} with username: {username}, session info: {sshAccess}")
+
+            return deviceIP, username, netDevice
+
+        except NetMikoAuthenticationException:
+            print("\n Login incorrect. Please check your username and password")
+            print(" Retrying operation... \n")
+            authLog.error(f"Failed to authenticate - remote device IP: {deviceIP}, Username: {username}")
+            authLog.debug(traceback.format_exc())
+
+        except NetMikoTimeoutException:
+            print("\n Connection to the device timed out. Please check your network connectivity and try again.")
+            print(" Retrying operation... \n")
+            authLog.error(f"Connection timed out, device not reachable - remote device IP: {deviceIP}, Username: {username}")
+            authLog.debug(traceback.format_exc())
+
+        except socket.error:
+            print("\n IP address is not reachable. Please check the IP address and try again.")
+            print(" Retrying operation... \n")
+            authLog.error(f"Remote device unreachable - remote device IP: {deviceIP}, Username: {username}")
+            authLog.debug(traceback.format_exc())
 
 def validateInt(userInput):
     validInt_Pattern = r'\b(?:Et|Gi|Te)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:,\s*(?:Et|Gi|Te)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
     authLog.info(f"Interface successfully validated {userInput}")
     return bool(re.fullmatch(validInt_Pattern, userInput))
+
+def delStringFromFile(filePath, stringToDel):
+    with open(filePath, "r") as file:
+        file_content = file.read()
+
+    updated_content = file_content.replace(stringToDel, "")
+
+    with open(filePath, "w") as file:
+        file.write(updated_content)
+
+def checkYNInput(stringInput):
+    return stringInput.lower() == 'y' or stringInput.lower() == 'n'
+
+def readIPfromCSV(csvFile):
+    try:
+        with open(csvFile, "r") as deviceFile:
+            csvReader = csv.reader(deviceFile)
+            for row in csvReader:
+                for ip in row:
+                    ip = ip.strip()
+                    ip = ip + ".mgmt.internal.das"
+    except Exception as error:
+        print("Error occurred while checking device reachability:", error,"\n")
+        authLog.error(f"Error occurred while checking device reachability for IP {ip}: {error}")
+        authLog.debug(traceback.format_exc())

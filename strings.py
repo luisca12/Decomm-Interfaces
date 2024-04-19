@@ -6,15 +6,18 @@ def greetingString():
         print("Welcome to the automated port removal program \n")
 
 def menuString(deviceIP, username):
-        os.system("CLS")
-        print("Connected to:", deviceIP, "as", username)
+        print(f"\nConnected to: {deviceIP} as {username}")
         print('\n  -------------------------------------------------------------- ')
+        print("          Welcome to the automated port decomm program             ")
+        print("       Please choose an option, only numbers are accepted          ")
+        print('  -------------------------------------------------------------- ')
         print('>      1. Show not connected interfaces                            <')
         print('>      2. Show interfaces not running for more than 30 days        <')
-        print('>      3. Choose the interfaces to decom:                          <')
-        print('>      4. Decom interfaces not running for more than 30 days       <')
-        print('>      5. Show the interfaces that were modified                   <')   
-        print('>      6. To exit the program                                      <')     
+        print('>      3. To auto choose AND decomm the interfaces                 <')
+        print('>      4. To manually choose the interfaces to decom:              <')
+        print('>      5. To manually decomm the interfaces not running 30 days +  <')
+        print('>      6. Show the interfaces that were modified                   <')   
+        print('>      7. To exit the program                                      <')     
         print('\n  -------------------------------------------------------------- ')
 
 def inputErrorString():
@@ -24,7 +27,6 @@ def inputErrorString():
         print('  ------------------------------------------------- ')
 
 def selIntString():
-        os.system("CLS")
         print('  ------------------------------------------------- ')  
         print('>      Please input the interfaces to decom:       <')
         print('>    Example: Et0/1-10, Gi1/0/11-20, Te1/0/1-4     <')
