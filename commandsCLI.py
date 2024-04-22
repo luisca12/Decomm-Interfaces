@@ -9,10 +9,11 @@ shRun = "show run"
 intChosen = ""
 decomIntCLIOutput = []
 intNotConnected = []
+interfaceList30Day = []
 
 # Regex patterns
 ipIntBrief = "show interface status | include Port | notconnect" #Real regex for production
-intNotConnPatt = r'(?:[a-zA-Z]+)(?:(?:\d+\/){2}\d+|(?:\d+))' #Real regex for production
+intNotConnPatt = r'[a-zA-Z]+\d+\/(?:\d+\/)*\d+' #Real regex for production
 searchPatt30d = r'output (\d{2}:\d{2}:\d{2})|output (\d+[ymwdhms]\d+[ymwdhms])|output never'
 intChosenPatt = r'/\b(?:Et|Gi|Te|Tw)\d+\/\d+(?:\/\d+)?(?:-\d+)?(?:, (?:Et|Gi|Te|Tw)\d\/\d+(?:\/\d+)?(?:-\d+)?)*\b'
 
@@ -39,7 +40,6 @@ def notConnect(deviceIP, username, netDevice, printNotConnect=True, sshAccess=No
                 authLog.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'\n")
 
                 intNotConnected = re.findall(intNotConnPatt, shNotConnect)
-                print(intNotConnected)
                 return intNotConnected
 
     except Exception as error:
@@ -61,11 +61,10 @@ def sh30dIntOff(deviceIP, username, netDevice):
     please check if the output of "show interface e0/1" is "output never", if it's like this
     it will fail, it will only look for "output HH:MM:SS | y:m:d"
     """
-    interfaceList30Day = []
+    global interfaceList30Day
     with ConnectHandler(**netDevice) as sshAccess:
         try:
-            # intNotConnected = notConnect(deviceIP, username, netDevice, printNotConnect=False)
-            print(intNotConnected)
+            sshAccess.enable()
             for interface in intNotConnected:
                 cliCommand = f"show interface {interface}"
                 cliOutput = sshAccess.send_command(cliCommand)
@@ -111,6 +110,7 @@ def sh30dIntOff(deviceIP, username, netDevice):
                 f"for more than 30 days, error message: {error}")
             authLog.debug(traceback.format_exc())
         finally:
+            print(f"Summary of the interfaces not running for more than 30 days:\n{interfaceList30Day}")
             os.system("PAUSE")
     return interfaceList30Day
 
@@ -138,11 +138,12 @@ def selectIntOff(deviceIP, username, netDevice):
                 else:
                     print(f"Invalid input \"{intChosen}\"\n")
                     authLog.error("The return value from the function validateInt is False (incorrect), please check the interfaces chosen.")
-                    os.system("PAUSE"), os.system("CLS")
+                    os.system("PAUSE")
                 
     except Exception as error:
         print(f"An error occurred: {error}")
         authLog.error(f"User {username} connected to {deviceIP} encountered an error while validating input:{error}")
+        authLog.debug(traceback.format_exc())
                     
     finally:
         os.system("PAUSE")
@@ -201,40 +202,61 @@ def decomIntCLI(interface):
     ]
     return decomIntCLI
 
-def autoChooseInt(deviceIP, username, netDevice):
-    interfaceList30Day = sh30dIntOff(deviceIP, username, netDevice)
-    with ConnectHandler(**netDevice) as sshAccess:
-        try:
-            shRunString(deviceIP)
-            shRunOutput = sshAccess.send_command(shRun)
-            configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
-                        f"before making the changes successfully:\n{shRunOutput}")
-            print(f"\nInterfaces selected for decommissioning: {interfaceList30Day}")
-            print("Will now begin to decommission the interfaces.\n")
-            for interface in interfaceList30Day:
-                print("Processing interface: ",interface)
-                configChangeLog.info(f"Configuring interface {interface}\n{decomIntCLI(interface)}\n")
-                
-                sshAccess.send_config_set(decomIntCLI(interface))
-                decomIntCLIOutput.append(sshAccess.send_config_set(decomIntCLI(interface)))
+def decomIntList(interface):
+    decomIntList = [
+            f"interface {interface}",
+            "description unusedPort",
+            "switchport mode access",
+            "switchport access vlan 1001",
+            "shutdown"
+    ]
+    return decomIntList
 
-                configChangeLog.info(f"User {username} successfully connected to device IP {deviceIP} and ran the following commands:\n {decomIntCLI(interface)}\n")
-                authLog.info(f"User {username} connected to device IP {deviceIP} successfully, processed and configured the interface {intChosen} in VLAN 1001.")
-                print("Successfully decommissioned the interfaces.")
-                        
-                shRunOutput = sshAccess.send_command(shRun)
-                configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
-                    f"after making the changes successfully:\n{shRunOutput}")
-                return decomIntCLIOutput
-                        
+def autoChooseInt(deviceIP, username, netDevice):
+        try:
+            if interfaceList30Day:
+                with ConnectHandler(**netDevice) as sshAccess:
+                    sshAccess.enable()
+                    shRunString(deviceIP)
+                    with open(f"{deviceIP}_Outputs.txt", "a") as file:
+                        file.write(f"User {username} connected to device IP {deviceIP}\n\n")
+                        shRunOutputBefore = sshAccess.send_command(shRun)
+                        configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
+                                    f"before making the changes successfully:\n{shRunOutputBefore}")
+                        file.write("INFO: Taking show run before the changes\n")
+                        file.write(f"{shRunOutputBefore}\n\n")
+                        print(f"\nInterfaces selected for decommissioning: {interfaceList30Day}")
+                        print("Will now begin to decommission the interfaces.\n")
+                        os.system("PAUSE")
+                        file.write("INFO: Starting the configuration changes")
+                        # for interface in interfaceList30Day:
+                        #     print("Processing interface: ",interface)
+                        #     configChangeLog.info(f"Configuring interface {interface}:\n{decomIntList(interface)}\n")  
+                        #     file.write(f"INFO: Configuring interface {interface}\n")
+
+                        #     decomOut = sshAccess.send_config_set(decomIntList(interface))
+                        #     decomIntCLIOutput.append(decomOut)
+
+                        #     file.write(f"INFO: Successfully configured the interface: \n{decomOut}\n\n")
+                        #     configChangeLog.info(f"User {username} successfully connected to device IP {deviceIP} and ran the following commands:\n {decomIntCLI(interface)}\n")
+                        #     authLog.info(f"User {username} connected to device IP {deviceIP} successfully, processed and configured the interface {intChosen} in VLAN 1001.")
+                        #     print("Successfully decommissioned the interfaces.")
+
+                        file.write(f"\n\nINFO: Taking show run after the changes\n")  
+                        shRunOutAfter = sshAccess.send_command(shRun)
+                        file.write(f"{shRunOutAfter}")
+                        configChangeLog.info(f"Automation ran the command \"{shRun}\" into the deviceIP {deviceIP} "\
+                            f"after making the changes successfully:\n{shRunOutAfter}")
+                        return decomIntCLIOutput       
             else:
-                print("No interfaces selected. Please go back to option 3\n")
+                print("No interfaces selected. Please go back to option 2\n")
                 authLog.warning(f"User {username} connected to {deviceIP} did not select any interfaces for decommissioning.")
                 return []
                     
         except Exception as error:
             print(f"An error occurred: {error}")
             authLog.error(f"User {username} connected to {deviceIP} encountered an error while processing interfaces for decommissioning: {error}")
+            authLog.debug(traceback.format_exc())
 
         finally:
             os.system("PAUSE")

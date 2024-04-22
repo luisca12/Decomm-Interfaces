@@ -33,7 +33,6 @@ def selIntString():
         print('  ------------------------------------------------- ')
 
 def shRunString(deviceIP):
-        os.system("CLS")
         print('  ------------------------------------------------- ')  
         print(f'> Taking a show run of the device {deviceIP}    <')
         print('>\t   Please wait until it finishes\t  <')
@@ -41,7 +40,6 @@ def shRunString(deviceIP):
         os.system("\nPAUSE")
 
 def shDelIntOffString():
-        os.system("CLS")
         print('  ------------------------------------------------- ')  
         print('>  Below is the output of the interfaces modified  <')
         print('  ------------------------------------------------- ')

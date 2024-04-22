@@ -37,7 +37,7 @@ def main():
                 # This function is to show the interfaces modified
                 shDelIntOff()
             
-            elif selection == "6":
+            elif selection == "7":
                 print("Exiting the program...\n")
                 authLog.info(f"User {username} connected to device IP {deviceIP} successfully logged out")
                 break   
