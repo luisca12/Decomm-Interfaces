@@ -1,12 +1,14 @@
 import socket
 import os
-from log import *
-from log import invalidIPLog
 import csv
 import traceback
 import re
+import getpass
+
 from netmiko.exceptions import NetMikoAuthenticationException, NetMikoTimeoutException
 from netmiko import ConnectHandler
+from log import *
+from log import invalidIPLog
 
 def checkIsDigit(input_str):
     try:
@@ -71,8 +73,8 @@ def requestLogin(deviceIP):
             deviceIP = f"{deviceIP}.mgmt.internal.das" 
         try:
             username = input("Please enter your username: ")
-            password = input("Please enter your password: ")
-            execPrivPassword = input("Please input your enable password: ")
+            password = getpass.getpass("Please enter your password: ")
+            execPrivPassword = getpass.getpass("Please input your enable password: ")
 
             
             netDevice = {
