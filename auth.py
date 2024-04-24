@@ -14,7 +14,7 @@ def Auth():
     global deviceIP, username, execPrivPassword, netDevice
     
     while True:
-        deviceIP = input("Please enter the device IP: ")
+        deviceIP = input("Please enter the device IP/hostname: ")
         if validateIP(deviceIP):
             checkReachPort22(deviceIP)
             break
