@@ -37,14 +37,14 @@ def notConnect(deviceIP, username, netDevice, printNotConnect=True, sshAccess=No
                 if printNotConnect:
                     print(shNotConnect)
                 
-                authLog.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'\n")
+                authLog.info(f"User {username} connected to {deviceIP} ran the command '{ipIntBrief}'")
 
                 intNotConnected = re.findall(intNotConnPatt, shNotConnect)
                 return intNotConnected
 
     except Exception as error:
         print(f"An error occurred: {error}")
-        authLog.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}\n")
+        authLog.error(f"User {username} connected to {deviceIP} tried to run '{ipIntBrief}', error message: {error}")
         authLog.debug(traceback.format_exc())
         return []
     finally:

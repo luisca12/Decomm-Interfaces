@@ -3,6 +3,7 @@ from strings import *
 from functions import *
 from commandsCLI import *
 import os
+import netmiko
 
 def main():
     greetingString()
