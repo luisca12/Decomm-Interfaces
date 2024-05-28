@@ -229,18 +229,18 @@ def autoChooseInt(deviceIP, username, netDevice):
                         print("Will now begin to decommission the interfaces.\n")
                         os.system("PAUSE")
                         file.write("INFO: Starting the configuration changes")
-                        # for interface in interfaceList30Day:
-                        #     print("Processing interface: ",interface)
-                        #     configChangeLog.info(f"Configuring interface {interface}:\n{decomIntList(interface)}\n")  
-                        #     file.write(f"INFO: Configuring interface {interface}\n")
+                        for interface in interfaceList30Day:
+                            print("Processing interface: ",interface)
+                            configChangeLog.info(f"Configuring interface {interface}:\n{decomIntList(interface)}\n")  
+                            file.write(f"INFO: Configuring interface {interface}\n")
 
-                        #     decomOut = sshAccess.send_config_set(decomIntList(interface))
-                        #     decomIntCLIOutput.append(decomOut)
+                            decomOut = sshAccess.send_config_set(decomIntList(interface))
+                            decomIntCLIOutput.append(decomOut)
 
-                        #     file.write(f"INFO: Successfully configured the interface: \n{decomOut}\n\n")
-                        #     configChangeLog.info(f"User {username} successfully connected to device IP {deviceIP} and ran the following commands:\n {decomIntCLI(interface)}\n")
-                        #     authLog.info(f"User {username} connected to device IP {deviceIP} successfully, processed and configured the interface {intChosen} in VLAN 1001.")
-                        #     print("Successfully decommissioned the interfaces.")
+                            file.write(f"INFO: Successfully configured the interface: \n{decomOut}\n\n")
+                            configChangeLog.info(f"User {username} successfully connected to device IP {deviceIP} and ran the following commands:\n {decomIntCLI(interface)}\n")
+                            authLog.info(f"User {username} connected to device IP {deviceIP} successfully, processed and configured the interface {intChosen} in VLAN 1001.")
+                            print("Successfully decommissioned the interfaces.")
 
                         file.write(f"\n\nINFO: Taking show run after the changes\n")  
                         shRunOutAfter = sshAccess.send_command(shRun)
